@@ -38,7 +38,8 @@ driver = webdriver.Firefox(service=service, options=firefox_options)
 
 # ======= 讀取 JSON 檔案 =======
 # json_path = sys.argv[1]
-json_path = "/home/annie/tmp/wind_sources.json"
+json_path = config['paths']['json_path']
+
 if not os.path.exists(json_path):
     print(f"[ERROR] 找不到 JSON 檔案：{json_path}")
     sys.exit(1)
@@ -47,8 +48,8 @@ with open(json_path, "r", encoding="utf-8") as f:
     sources = json.load(f)
 
 # ======= 建立資料庫連線 =======
-# print(sources)
-# sys.exit(0)
+print(sources)
+sys.exit(0)
 conn = mysql.connector.connect(
     host=DB_HOST,
     user=DB_USER,
