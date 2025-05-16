@@ -1,4 +1,6 @@
 ################### Debug Console ###########################
+# 觀查開啟的網頁是否正確
+logging.info(f"開啟網頁：{url}")
 # 確認 script 數量
 logging.info(f"共找到 {len(scripts)} 個 <script> 標籤")
 
