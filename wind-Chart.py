@@ -72,7 +72,7 @@ try:
         database=DB_NAME,
         charset='utf8mb4'
     )
-    cursor = conn.cursor()
+    cursor = conn.cursor()    
 except Exception as e:
     logging.error(f"資料庫連線失敗：{e}")
     driver.quit()
@@ -89,7 +89,7 @@ for entry in sources:
         logging.warning(f"{location_tw} 缺少 URL，略過")
         continue
 
-    try:
+    try:        
         driver.get(url)
         driver.implicitly_wait(10)
 
@@ -99,9 +99,13 @@ for entry in sources:
         # 輸出結果
         for script in scripts:
             report = json.dumps(script.string, ensure_ascii=False)
-            
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             ################### Debug Console ###########################
+            # 印出已定義的變數
+            logging.info(f"{location_tw}=={location_en}==的id是：{location_id}")
+            # 印出現在時間
+            logging.info(f"現在時間是：{timestamp}")
             # 觀查開啟的網頁是否正確
             logging.info(f"開啟網頁：{url}")
             # 確認 script 數量
@@ -109,7 +113,7 @@ for entry in sources:
 
             # 測試印出前 1 個 script 的內容
             if len(scripts) > 0:
-                logging.debug(f"第一個 <script> 內容：\n{scripts[0].string[:500]}")
+               logging.debug(f"第一個 <script> 內容：\n{scripts[0].string[:500]}")
 
             # 如果需要手動檢查才繼續：
             input("🔍 已顯示第一個 script，請按 Enter 繼續...")
@@ -121,7 +125,13 @@ for entry in sources:
                 logging.error("❌ 找不到任何 <script>，停止程式。")
                 sys.exit(1)
             ############################################################
-
+            cursor.execute("""
+                            INSERT INTO wp_wind_speed_data 
+                            (location_id, location, location_zhtw, url, script_content, created_at)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (location_id, location_en, location_tw, url, content, timestamp))
+            conn.commit()
+            logging.info(f"{location_tw} ({location_en}) - 成功寫入 windData")
 
         # matched = False
         # for script in scripts:
@@ -150,7 +160,7 @@ for entry in sources:
 
         # if not matched:
         #     logging.warning(f"{location_tw} - 找不到 windData script 或解析失敗")
-
+    
     except Exception as e:
         logging.error(f"{location_tw} - 無法讀取 {url}：{e}")
 
